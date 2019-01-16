@@ -24,3 +24,5 @@ Class given by Andrew Ng.
 
 ## Resources
 * [Link to Course](https://www.coursera.org/learn/machine-learning)
+* [Programming Exercise Tutorials](https://www.coursera.org/learn/machine-learning/discussions/all/threads/m0ZdvjSrEeWddiIAC9pDDA)
+* [Programming Exercise Test Cases](https://www.coursera.org/learn/machine-learning/discussions/all/threads/0SxufTSrEeWPACIACw4G5w)
