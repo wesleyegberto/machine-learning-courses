@@ -1,1 +1,5 @@
 **/.DS_Store
+# ignoring files that submit the assignments
+**/lib
+submit.m
+token.mat
