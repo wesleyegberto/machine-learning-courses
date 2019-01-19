@@ -63,6 +63,7 @@ X = [ones(m, 1) X];
 % Initialize fitting parameters
 initial_theta = zeros(n + 1, 1);
 
+
 % Compute and display initial cost and gradient
 [cost, grad] = costFunction(initial_theta, X, y);
 
@@ -71,6 +72,7 @@ fprintf('Expected cost (approx): 0.693\n');
 fprintf('Gradient at initial theta (zeros): \n');
 fprintf(' %f \n', grad);
 fprintf('Expected gradients (approx):\n -0.1000\n -12.0092\n -11.2628\n');
+
 
 % Compute and display cost and gradient with non-zero theta
 test_theta = [-24; 0.2; 0.2];
@@ -84,6 +86,7 @@ fprintf('Expected gradients (approx):\n 0.043\n 2.566\n 2.647\n');
 
 fprintf('\nProgram paused. Press enter to continue.\n');
 pause;
+
 
 
 %% ============= Part 3: Optimizing using fminunc  =============
@@ -121,7 +124,7 @@ hold off;
 fprintf('\nProgram paused. Press enter to continue.\n');
 pause;
 
-%% ============== Part 4: Predict and Accuracies ==============
+%% ============== Part 4: Predict and Accuracies using fminunc ==============
 %  After learning the parameters, you'll like to use it to predict the outcomes
 %  on unseen data. In this part, you will use the logistic regression model
 %  to predict the probability that a student with score 45 on exam 1 and 
@@ -135,9 +138,10 @@ pause;
 %  Predict probability for a student with score 45 on exam 1 
 %  and score 85 on exam 2 
 
+fprintf('Predicint using theta from fminunc\n\n');
+
 prob = sigmoid([1 45 85] * theta);
-fprintf(['For a student with scores 45 and 85, we predict an admission ' ...
-         'probability of %f\n'], prob);
+fprintf(['For a student with scores 45 and 85, we predict an admission probability of %f\n'], prob);
 fprintf('Expected value: 0.775 +/- 0.002\n\n');
 
 % Compute accuracy on our training set
@@ -148,3 +152,58 @@ fprintf('Expected accuracy (approx): 89.0\n');
 fprintf('\n');
 
 
+
+
+%% ============== Part 5: Using Gradient Descent ==============
+% To apply Gradient Descent we need to normalize (otherwise we will ending with log(0) = Inf)
+
+
+fprintf('Normalizing\n');
+X = data(:, 1:2);
+[X mu sigma] = featureNormalize(X);
+X = [ones(m, 1) X];
+
+num_iters = 50;
+
+alphas = [0.01, 0.1, 0.3, 1, 3];
+colors = ['b', 'r', 'y', 'g', 'black'];
+
+fprintf('Plotting the cost during iterations.\n');
+figure;
+hold on;
+
+for i = 1:length(alphas)
+    alpha = alphas(i);
+    % Init Theta and Run Gradient Descent 
+    theta = initial_theta;
+
+    [theta, J_history] = gradientDescentLogistic(X, y, theta, alpha, num_iters);
+
+    % Plot the convergence graph
+    plot(1:numel(J_history), J_history, colors(i), 'LineWidth', 2);
+end
+
+xlabel('Number of iterations');
+ylabel('Cost J');
+legend('0.01', '0.1', '0.3', '1', '3');
+
+% Display gradient descent's result
+fprintf('Theta computed from gradient descent: \n');
+fprintf(' %f \n', theta);
+fprintf('\n');
+
+fprintf('\nPredicint using theta from Gradient Descent\n\n');
+predict_student = [45 85];
+% normalize and add the x_0 = 1
+predict_norm = [1, ((predict_student - mu) ./ sigma)];
+
+prob = sigmoid(predict_norm * theta);
+fprintf(['For a student with scores 45 and 85, we predict an admission probability of %f\n'], prob);
+fprintf('Expected value: 0.732\n\n');
+
+% Compute accuracy on our training set
+p = predict(theta, X);
+
+fprintf('Train Accuracy: %f\n', mean(double(p == y)) * 100);
+fprintf('Expected accuracy (approx): 89.0\n');
+fprintf('\n');
