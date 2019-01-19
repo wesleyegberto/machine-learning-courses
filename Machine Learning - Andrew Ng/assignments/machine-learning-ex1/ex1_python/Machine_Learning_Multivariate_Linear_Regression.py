@@ -137,7 +137,8 @@ X[:5]
 
 
 def hypothesisMulti(X, theta):
-    return [np.dot(xi, theta) for xi in X]
+    # return [np.dot(xi, theta) for xi in X]
+    return np.dot(X, theta)
 
 
 # ### Compute cost for linear regression
@@ -185,7 +186,12 @@ def computeCostMulti(X, y, theta):
 # 
 # $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)})$ when $j = 0$ (bacause it is the bias - doesn't have a feature).
 # 
-# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x{(i)}]$ when $j > 1$.
+# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$ when $j > 1$.
+# 
+# 
+# Metrix form:
+# 
+# $ \frac{\partial J}{\partial \Theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
 # 
 # 
 # `gradientDescent(X, y, theta, alpha, num_iters)` performs gradient descent to learn $\Theta$ parameters.
@@ -312,6 +318,12 @@ print(theta)
 
 # Estimate the price of a 1650 sq-ft, 3 br house
 predict = np.column_stack((np.ones(1), [[1650, 3]]))
-price = hypothesisMulti(predict, theta)[0] # 293094.09812
+price = hypothesisMulti(predict, theta)[0] # 293081.46
 print("Predicted price: ", price)
+
+
+# In[ ]:
+
+
+
 

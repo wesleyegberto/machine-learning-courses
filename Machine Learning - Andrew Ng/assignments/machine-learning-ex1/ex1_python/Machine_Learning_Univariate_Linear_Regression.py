@@ -38,7 +38,7 @@ y = data['profit'] # labels
 m = len(y) # training size
 
 
-# In[26]:
+# In[4]:
 
 
 # plots the data
@@ -49,7 +49,7 @@ sns.jointplot('population_size', 'profit', data=data, color="m", height=7)
 
 
 # ### =================== Part 3: Cost and Gradient descent ===================
-# In[5]:
+
 # Add a column of ones to X to facilitate the manipulation.
 # 
 # Each row is a input with the following format:
@@ -57,6 +57,9 @@ sns.jointplot('population_size', 'profit', data=data, color="m", height=7)
 # $X[0] = [ x_0, x_1 ]$ where $x_0 = 1$
 
 # In[5]:
+
+
+# Add a column of ones to X to facilitate the manipulation
 X = np.column_stack((np.ones(m), x))
 
 
@@ -103,7 +106,8 @@ print(theta)
 
 
 def hypothesis(X, theta):
-    return [np.dot(xi, theta) for xi in X]
+    # return [np.dot(xi, theta) for xi in X]
+    return np.dot(X, theta)
 
 
 # ### Compute cost for linear regression
@@ -158,7 +162,7 @@ print('Expected cost value (approx) 54.24\n');
 
 
 # ### Running Gradient Descent
-# We use gradient descent to find the hyperparameters values $\Theta$ that **minimize** $J$.
+# We use gradient descent to find the parameters values $\Theta$ that **minimize** $J$.
 # In each iteration we calculate a $\Theta'$ where $J(\Theta') < J(\Theta)$.
 # 
 # This $\Theta'$ defined by $\Theta' = \Theta - \alpha * \nabla h_\theta$, where $\nabla h_\theta$ is the amount we need change to *minimize* $J(\Theta)$ and $\alpha$ is the step we will take.
@@ -174,7 +178,11 @@ print('Expected cost value (approx) 54.24\n');
 # 
 # $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)})$ when $j = 0$ (bacause it is the bias - doesn't have a feature).
 # 
-# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x{(i)}]$ when $j = 1$.
+# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$ when $j = 1$.
+# 
+# Metrix form:
+# 
+# $ \frac{\partial J}{\partial \Theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
 # 
 # 
 # `gradientDescent(X, y, theta, alpha, num_iters)` performs gradient descent to learn $\Theta$ parameters.
@@ -204,7 +212,7 @@ def gradientDescentManualWay(X, y, theta, alpha, num_iters):
         
         # Save the cost J in every iteration
         J_history[i] = computeCost(X, y, theta);
-    return (theta, J_history)
+    return theta, J_history
 
 # better way using the convenient x_0 = 1
 def gradientDescentVectorialWay(X, y, theta, alpha, num_iters):
@@ -219,7 +227,7 @@ def gradientDescentVectorialWay(X, y, theta, alpha, num_iters):
         
         # Save the cost J in every iteration
         J_history[i] = computeCost(X, y, theta);
-    return (theta, J_history)
+    return theta, J_history
 
 
 # In[13]:
@@ -227,7 +235,7 @@ def gradientDescentVectorialWay(X, y, theta, alpha, num_iters):
 
 print('\nRunning Gradient Descent ...\n')
 theta = np.zeros(2)
-(theta, J_history) = gradientDescentVectorialWay(X, y, theta, alpha, iterations);
+theta, J_history = gradientDescentVectorialWay(X, y, theta, alpha, iterations);
 
 # print theta to screen
 print('Theta found by gradient descent:');
@@ -303,13 +311,8 @@ sns.lineplot(range(iterations), J_history)
 
 # ### ============= Extra: Plotting Hypothesis Model =============
 
-# In[48]:
+# In[19]:
 
-
-# fig, ax = plt.subplots()
-# sns.jointplot('population_size', 'profit', data=data, color="m", height=7, ax=ax)
-
-# ax2 = ax.twinx()
 
 population_size = np.arange(0, 25, 2.5)
 profit = np.zeros(len(population_size))
@@ -318,9 +321,7 @@ for i in range(len(population_size)):
     predict = hypothesis(np.array([[1, population_size[i]]]), theta)
     profit[i] = predict[0]
 
-# sns.lineplot(population_size, profit, ax=ax2)
-
-g = sns.FacetGrid(data, size=6)
+g = sns.FacetGrid(data, height=6)
 g = g.map(plt.scatter, 'population_size', 'profit', edgecolor="w")
 plt.plot(population_size, profit, color='r')
 
