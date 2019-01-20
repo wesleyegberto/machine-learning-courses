@@ -20,7 +20,7 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 sns.set(style="whitegrid")
 
 
-# ### ======================= Part 2: Plotting =======================
+# ## ======================= Part 2: Plotting =======================
 
 # In[2]:
 
@@ -48,7 +48,7 @@ m = len(y) # training size
 sns.jointplot('population_size', 'profit', data=data, color="m", height=7)
 
 
-# ### =================== Part 3: Cost and Gradient descent ===================
+# ## =================== Part 3: Cost and Gradient descent ===================
 
 # Add a column of ones to X to facilitate the manipulation.
 # 
@@ -63,7 +63,7 @@ sns.jointplot('population_size', 'profit', data=data, color="m", height=7)
 X = np.column_stack((np.ones(m), x))
 
 
-# Initialize fitting parameters $\Theta = [0, 1]^T$ (fixed to 0 to validated the output from computCost and gradient descent).
+# Initialize fitting parameters $\theta = [0, 1]^T$ (fixed to 0 to validated the output from computCost and gradient descent).
 # 
 # Learning rate $\alpha = 0.01$.
 
@@ -96,18 +96,17 @@ print(theta)
 # 
 # Vectorial form:
 # 
-# $h_\theta(X) = \Theta^{T} * X$
+# $h_\theta(x) = \theta^{T} * x$
 # 
 # where:
-# $X = [x_0, x_1]$ and $x_0 = 1$,
-# $\Theta = [\theta_0, \theta_1]$
+# $x = [x_0, x_1]$; $x_0 = 1$ and $\theta = [\theta_0, \theta_1]$
 
 # In[8]:
 
 
 def hypothesis(X, theta):
     # return [np.dot(xi, theta) for xi in X]
-    return np.dot(X, theta)
+    return X.dot(theta)
 
 
 # ### Compute cost for linear regression
@@ -115,9 +114,9 @@ def hypothesis(X, theta):
 # 
 # Function cost:
 # 
-# $ J(\Theta) = \frac{1}{2m} \sum_{i=0}^{m} (h_\theta(x^{(i)}) - y^{(i)})^{2} $
+# $ J(\theta) = \frac{1}{2m} \sum_{i=0}^{m} (h_\theta(x^{(i)}) - y^{(i)})^{2} $
 # 
-# Expecting 32.07 at first iteration as $\Theta$ was initialized with $[0, 0]$.
+# Expecting 32.07 at first iteration as $\theta$ was initialized with $[0, 0]$.
 
 # In[9]:
 
@@ -135,11 +134,12 @@ theta = [ theta_0, theta_1 ]
 def computeCost(X, y, theta):
     m = len(y)
     h_theta = hypothesis(X, theta)
-    j = (1 / (2 * m)) * ((h_theta - y) ** 2).sum()
-    return j
+    # return (1 / (2 * m)) * ((h_theta - y) ** 2).sum()
+    delta = (h_theta - y)
+    return (1 / (2 * m)) * delta.T.dot(delta)
 
 
-# Testing the cost function with $\Theta = [0, 0]^T$
+# Testing the cost function with $\theta = [0, 0]^T$
 
 # In[10]:
 
@@ -150,7 +150,7 @@ print('Cost computed = %f' % J);
 print('Expected cost value (approx) 32.07\n');
 
 
-# Testing the cost function with $\Theta = [-1, 2]^T$
+# Testing the cost function with $\theta = [-1, 2]^T$
 
 # In[11]:
 
@@ -162,34 +162,34 @@ print('Expected cost value (approx) 54.24\n');
 
 
 # ### Running Gradient Descent
-# We use gradient descent to find the parameters values $\Theta$ that **minimize** $J$.
-# In each iteration we calculate a $\Theta'$ where $J(\Theta') < J(\Theta)$.
+# We use gradient descent to find the parameters values $\theta$ that **minimize** $J$.
+# In each iteration we calculate a $\theta'$ where $J(\theta') < J(\theta)$.
 # 
-# This $\Theta'$ defined by $\Theta' = \Theta - \alpha * \nabla h_\theta$, where $\nabla h_\theta$ is the amount we need change to *minimize* $J(\Theta)$ and $\alpha$ is the step we will take.
+# This $\Theta'$ defined by $\theta' = \theta - \alpha * \nabla h_\theta$, where $\nabla h_\theta$ is the amount we need change to *minimize* $J(\theta)$ and $\alpha$ is the step we will take.
 # 
 # If $\alpha$ is too large we could ending increasing $J$, it need to be small enough to converge quickly to the points the $J(\Theta)$ is minimum.
 # 
 # 
 # Step to update each parameter:
 # 
-# $\Theta_j := \Theta_j - \alpha * \frac{\partial J}{\partial \Theta_j} $
+# $\theta_j := \theta_j - \alpha * \frac{\partial J}{\partial \theta_j} $
 # 
 # Where:
 # 
-# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)})$ when $j = 0$ (bacause it is the bias - doesn't have a feature).
+# $\frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)})$ when $j = 0$ (bacause it is the bias - doesn't have a feature).
 # 
-# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$ when $j = 1$.
+# $\frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$ when $j = 1$.
 # 
 # Metrix form:
 # 
-# $ \frac{\partial J}{\partial \Theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
+# $ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
 # 
 # 
-# `gradientDescent(X, y, theta, alpha, num_iters)` performs gradient descent to learn $\Theta$ parameters.
+# `gradientDescent(X, y, theta, alpha, num_iters)` performs gradient descent to learn $\theta$ parameters.
 # 
-# It return the an array with $\Theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
+# It return the an array with $\theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
 # 
-# Also it return a array with the history of $J(\Theta)$ to be plotted.
+# Also it return a array with the history of $J(\theta)$ to be plotted.
 # 
 
 # In[12]:
@@ -256,7 +256,7 @@ predict2 = hypothesis(np.array([[1, 7]]), theta)
 print('For population = 70,000, we predict a profit of %f\n' % (predict2[0] * 10000))
 
 
-# ### ============= Part 4: Visualizing $J(\theta_0, \theta_1)$ =============
+# ## ============= Part 4: Visualizing $J(\theta_0, \theta_1)$ =============
 
 # In[15]:
 

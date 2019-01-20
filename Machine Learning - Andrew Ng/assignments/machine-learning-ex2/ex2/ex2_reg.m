@@ -107,14 +107,16 @@ pause;
 initial_theta = zeros(size(X, 2), 1);
 
 % Set regularization parameter lambda to 1 (you should vary this)
-lambda = 10;
+lambda = 1;
 
 % Set Options
 options = optimset('GradObj', 'on', 'MaxIter', 400);
 
 % Optimize
-[theta, J, exit_flag] = ...
-	fminunc(@(t)(costFunctionReg(t, X, y, lambda)), initial_theta, options);
+[theta, J, exit_flag] = fminunc(@(t)(costFunctionReg(t, X, y, lambda)), initial_theta, options);
+
+fprintf('Theta computed from fminunc using lambda %f\n', lambda)
+theta
 
 % Plot Boundary
 plotDecisionBoundary(theta, X, y);
@@ -134,3 +136,51 @@ p = predict(theta, X);
 fprintf('Train Accuracy: %f\n', mean(double(p == y)) * 100);
 fprintf('Expected accuracy (with lambda = 1): 83.1 (approx)\n');
 
+fprintf('\nProgram paused. Press enter to continue.\n');
+pause;
+
+
+%% ============== Part 5: Using Gradient Descent ==============
+
+num_iters = 50;
+lambda = 1;
+
+alphas = [0.01, 0.1, 0.3, 1, 3];
+colors = ['b', 'r', 'y', 'g', 'black'];
+
+
+fprintf('Plotting the cost during iterations.\n');
+figure;
+hold on;
+
+for i = 1:length(alphas)
+    alpha = alphas(i);
+    % Init Theta and Run Gradient Descent 
+    theta = initial_theta;
+
+    [theta, J_history] = gradientDescentRegularizedLogistic(X, y, theta, alpha, lambda, num_iters);
+
+    % Plot the convergence graph
+    plot(1:numel(J_history), J_history, colors(i), 'LineWidth', 2);
+end
+
+xlabel('Number of iterations');
+ylabel('Cost J');
+legend('0.01', '0.1', '0.3', '1', '3');
+
+% Display gradient descent's result
+fprintf('Theta computed from gradient descent using alpha %f and lambda %f: \n', alpha, lambda);
+fprintf(' %f \n', theta);
+
+fprintf('\n');
+% Plot Boundary
+plotDecisionBoundary(theta, X, y);
+hold on;
+title(sprintf('lambda = %g', lambda))
+
+% Labels and Legend
+xlabel('Microchip Test 1')
+ylabel('Microchip Test 2')
+
+legend('y = 1', 'y = 0', 'Decision boundary')
+hold off;

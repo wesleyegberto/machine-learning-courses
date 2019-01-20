@@ -36,7 +36,7 @@ y = np.array(data['admitted']) # labels
 [m, n] = np.shape(x)
 
 
-# ### ==================== Part 1: Plotting ====================
+# ## ==================== Part 1: Plotting ====================
 
 # In[4]:
 
@@ -45,7 +45,7 @@ print('Plotting data with + indicating (y = 1) examples and o indicating (y = 0)
 sns.scatterplot('score1', 'score2', hue='admitted', data=data)
 
 
-# ### ============ Part 2: Compute Cost and Gradient ============
+# ## ============ Part 2: Compute Cost and Gradient ============
 
 # ### Activation Function
 # We will use the sigmoid function as our activation function.
@@ -158,18 +158,18 @@ X[:5]
 # $h_\theta(x) = g(\theta_0 + \theta_1 * x_1 + \theta_2 * x_2)$
 # 
 # Vectorial form:
-# $h_\theta(X) = g(\Theta^{T} * X)$
+# $h_\theta(x) = g(\theta^{T} * x)$
 # 
 # where:
 # 
-# $g$ is the sigmoid function; $X = [x_0, x_1, x_2]$; $x_0 = 1$ and $\Theta = [\theta_0, \theta_1, \theta_2]$
+# $g$ is the sigmoid function; $x = [x_0, x_1, x_2]$; $x_0 = 1$ and $\theta = [\theta_0, \theta_1, \theta_2]$
 
 # In[11]:
 
 
 def hypothesis(X, theta):
     # z = np.array([np.dot(xi, theta) for xi in X])
-    z = np.dot(X, theta)
+    z = X.dot(theta)
     return sigmoid(z)
 
 
@@ -178,7 +178,11 @@ def hypothesis(X, theta):
 # 
 # Function cost:
 # 
-# $ J(\Theta) = \frac{1}{m} \sum_{i=1}^{m} [ -y^{(i)} log(h_\theta(x^{(i)}) - (1 - y^{(i)}) log(1 - h_\theta(x^{(i)})) ]$
+# $ J(\theta) = \frac{1}{m} \sum_{i=1}^{m} [ -y^{(i)} log(h_\theta(x^{(i)}) - (1 - y^{(i)}) log(1 - h_\theta(x^{(i)})) ]$
+# 
+# Vectorial form:
+# 
+# $ J(\theta) = \frac{1}{m} * [-\vec{y}^{T} \cdot log(h_\theta(\vec{x})) - (1 - \vec{y})^{T} \cdot log(1 - h_\theta(\vec{x}))] $
 # 
 # If any time we got a $log(h_\theta(x^{(i)})) = 0$ that means we need to normalize the features.
 
@@ -201,7 +205,7 @@ def computeLogisticCostIterative(X, y, theta):
     m = len(y)
     errorSum = 0 # total error
     for i in range(m):
-        h = hypothesis(np.array([X[i]]), theta)
+        h = hypothesis(X[i], theta)
         errorSum = errorSum + (-y[i] * np.log(h) - (1 - y[i]) * np.log(1 - h))
     return errorSum / m
 
@@ -221,8 +225,8 @@ X_ = np.array([
     [1, 3, 5, 7],
     [1, 4, 9, 2]
 ]);
-y_ = np.array([[1], [0], [1]]);
-theta_ = np.array([[-2], [-1], [1], [2]]);
+y_ = np.array([1, 0, 1]);
+theta_ = np.array([-2, -1, 1, 2]);
 print('J ~= 4.6832 ->', computeLogisticCostIterative(X_, y_, theta_))
 print('J ~= 4.6832 ->', computeLogisticCostMatrix(X_, y_, theta_))
 
@@ -239,34 +243,35 @@ print('Expected cost (approx): 0.693')
 
 
 # ### Running Gradient Descent
-# Performs gradient descent to learn $\Theta$ parameters.
+# Performs gradient descent to learn $\theta$ parameters.
 # 
-# It return the an array with $\Theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
+# It return the an array with $\theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
 # 
-# Also it return a array with the history of $J(\Theta)$ to be plotted.
+# Also it return a array with the history of $J(\theta)$ to be plotted.
 # 
 # Step to update each parameter:
-# $\Theta_j := \Theta_j - \alpha * \frac{\partial J}{\partial \Theta_j} $
+# $\theta_j := \theta_j - \alpha * \frac{\partial J}{\partial \theta_j} $
 # 
 # Metrix form:
 # 
-# $ \frac{\partial J}{\partial \Theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
+# $ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
 # 
 # Where:
 # 
-# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$
+# $\frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$
 
 # In[15]:
 
 
-def logisticGradientDescentIterative(X, y, theta, alpha, num_iters):
+def logisticGradientDescent(X, y, theta, alpha, num_iters):
     m = len(y)
     J_history = np.zeros(num_iters)
     for i in range(num_iters):
         h_theta = hypothesis(X, theta)
-        nabla = (1 / m) * (h_theta - y).T.dot(X)
-         # print (nabla.transpose()) # first iteration: [ 0.31722, 0.87232, 1.64812, 2.23787 ]
-        theta = theta - alpha * nabla.T
+        # gradient of our cost function
+        nabla = (1 / m) * X.T.dot(h_theta - y)
+        # print (nabla) # first iteration: [ 0.31722, 0.87232, 1.64812, 2.23787 ]
+        theta = theta - alpha * nabla
 
         # Save the cost J in every iteration
         J_history[i] = computeLogisticCostIterative(X, y, theta)
@@ -277,7 +282,7 @@ def logisticGradientDescentIterative(X, y, theta, alpha, num_iters):
 
 
 # ~= [-2, -1, 1, 2], [4.6832]
-logisticGradientDescentIterative(X_, y_, theta_, 0, 1)
+logisticGradientDescent(X_, y_, theta_, 0, 1)
 
 
 # In[17]:
@@ -298,11 +303,11 @@ iterations = range(num_iters)
 print('Running gradient descent ...\n')
 for alpha, color in zip(alphas, colors):
     theta = np.zeros([n + 1]) # reset the theta to the current alpha
-    
-    theta, J_history = logisticGradientDescentIterative(X, y, theta, alpha, num_iters)
+
+    theta, J_history = logisticGradientDescent(X, y, theta, alpha, num_iters)
     # print('alpha ', alpha, ' found theta ', theta)
     plt.plot(iterations, J_history, color=color, label='alpha %.2f' % alpha)
-    
+
 plt.legend(loc='best', ncol=2)
 
 
@@ -332,7 +337,9 @@ print('Train Accuracy: ', ((p >= 0.5) == y).sum().mean())
 print('Expected accuracy (approx): 89.0\n')
 
 
-# In[39]:
+# ## ==================== Part 1: Plotting Boundary Decision ====================
+
+# In[21]:
 
 
 # Calculate the boundary decision
@@ -357,7 +364,7 @@ for i in range(len(gridPoints)):
 predictions = predictions.reshape(X.shape)
 
 
-# In[74]:
+# In[22]:
 
 
 fig, ax = plt.subplots()

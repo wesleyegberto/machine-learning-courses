@@ -116,7 +116,7 @@ X = np.column_stack((np.ones(m), X))
 X[:5]
 
 
-# ### ================ Part 2: Gradient Descent ================
+# ## ================ Part 2: Gradient Descent ================
 
 # ### Hypothesis Function
 # Function that defines our linear model.
@@ -127,18 +127,17 @@ X[:5]
 # 
 # Vectorial form:
 # 
-# $h_\theta(X) = \Theta^{T} * X$
+# $h_\theta(x) = \theta^{T} * x$
 # 
 # where:
-# $X = [x_0, x_1, x_2]$ and $x_0 = 1$,
-# $\Theta = [\theta_0, \theta_1, \theta_2]$
+# $x = [x_0, x_1, x_2]$; $x_0 = 1$ and $\theta = [\theta_0, \theta_1, \theta_2]$
 
 # In[9]:
 
 
 def hypothesisMulti(X, theta):
     # return [np.dot(xi, theta) for xi in X]
-    return np.dot(X, theta)
+    return X.dot(theta)
 
 
 # ### Compute cost for linear regression
@@ -146,7 +145,7 @@ def hypothesisMulti(X, theta):
 # 
 # Function cost:
 # 
-# $ J(\Theta) = \frac{1}{2m} \sum_{i=0}^{m} (h_\theta(x^{(i)}) - y^{(i)})^{2} $
+# $ J(\theta) = \frac{1}{2m} \sum_{i=0}^{m} (h_\theta(x^{(i)}) - y^{(i)})^{2} $
 
 # In[10]:
 
@@ -165,40 +164,40 @@ def computeCostMulti(X, y, theta):
     m = len(y)
     h_theta = hypothesisMulti(X, theta)
     # j = (1 / (2 * m)) * ((h_theta - y) ** 2).sum()
-    j = (1 / (2 * m)) * np.vdot((h_theta - y).transpose(), (h_theta - y))
+    j = (1 / (2 * m)) * (h_theta - y).T.dot(h_theta - y)
     return j
 
 
 # ### Running Gradient Descent
-# We use gradient descent to find the parameters values $\Theta$ that **minimize** $J$.
-# In each iteration we calculate a $\Theta'$ where $J(\Theta') < J(\Theta)$.
+# We use gradient descent to find the parameters values $\theta$ that **minimize** $J$.
+# In each iteration we calculate a $\theta'$ where $J(\theta') < J(\theta)$.
 # 
-# This $\Theta'$ defined by $\Theta' = \Theta - \alpha * \nabla h_\theta$, where $\nabla h_\theta$ is the amount we need change to *minimize* $J(\Theta)$ and $\alpha$ is the step we will take.
+# This $\theta'$ defined by $\theta' = \theta - \alpha * \nabla h_\theta$, where $\nabla h_\theta$ is the amount we need change to *minimize* $J(\theta)$ and $\alpha$ is the step we will take.
 # 
-# If $\alpha$ is too large we could ending increasing $J$, it need to be small enough to converge quickly to the points the $J(\Theta)$ is minimum.
+# If $\alpha$ is too large we could ending increasing $J$, it need to be small enough to converge quickly to the points the $J(\theta)$ is minimum.
 # 
 # 
 # Step to update each parameter:
 # 
-# $\Theta_j := \Theta_j - \alpha * \frac{\partial J}{\partial \Theta_j} $
+# $\theta_j := \theta_j - \alpha * \frac{\partial J}{\partial \theta_j} $
 # 
 # Where:
 # 
-# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)})$ when $j = 0$ (bacause it is the bias - doesn't have a feature).
+# $\frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)})$ when $j = 0$ (bacause it is the bias - doesn't have a feature).
 # 
-# $\frac{\partial J}{\partial \Theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$ when $j > 1$.
+# $\frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$ when $j > 1$.
 # 
 # 
 # Metrix form:
 # 
-# $ \frac{\partial J}{\partial \Theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
+# $ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
 # 
 # 
-# `gradientDescent(X, y, theta, alpha, num_iters)` performs gradient descent to learn $\Theta$ parameters.
+# `gradientDescent(X, y, theta, alpha, num_iters)` performs gradient descent to learn $\theta$ parameters.
 # 
-# It return the an array with $\Theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
+# It return the an array with $\theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
 # 
-# Also it return a array with the history of $J(\Theta)$ to be plotted.
+# Also it return a array with the history of $J(\theta)$ to be plotted.
 
 # In[11]:
 
@@ -209,9 +208,9 @@ def gradientDescentMulti(X, y, theta, alpha, num_iters):
     
     for i in range(num_iters):
         h_theta = hypothesisMulti(X, theta)
-        nabla = (1 / m) * np.dot((h_theta - y).transpose(), X);
+        nabla = (1 / m) * (h_theta - y).T.dot(X);
 
-        theta = theta - alpha * nabla.transpose()
+        theta = theta - alpha * nabla.T
         
         # Save the cost J in every iteration
         J_history[i] = computeCostMulti(X, y, theta);
