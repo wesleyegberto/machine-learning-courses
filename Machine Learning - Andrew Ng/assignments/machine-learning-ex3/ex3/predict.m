@@ -22,42 +22,59 @@ p = zeros(size(X, 1), 1);
 %
 
 % Loop way
-for i = 1:m
-    % === Activations from Input Layer (features) ===
-    a1 = [1; X(i,:)']; % add a1_0 = 1
-    
+% for i = 1:m
+%     % === Activations from Input Layer (features) ===
+%     a1 = [1; X(i,:)']; % add a1_0 = 1
+%     
+% 
+%     % === Activations from Hidden Layer ===
+%     k = size(Theta1, 1); % qty units in Hidden Layer
+%     a2 = zeros(k, 1);
+%     
+%     % Loop through Hidden Layer's units
+%     for j = 1:k
+%         z2_j = Theta1(j,:) * a1;
+%         a2(j) = sigmoid(z2_j);
+%     end
+%     a2 = [1; a2]; % add a2_0 = 1
+% 
+% 
+%     % === Activations from Output Layer ===
+%     k = size(Theta2, 1); % qty units in Output Layer
+%     a3 = zeros(k, 1);
+% 
+%     % Loop through Output Layer's units
+%     for j = 1:k
+%         z3_j = Theta2(j,:) * a2;
+%         a3(j) = sigmoid(z3_j);
+%     end
+% 
+% 
+%     % === softmax from our output (the index is our classification class) ===
+%     [_ p(i)] = max(a3', [], 2);
+% end
 
-    % === Activations from Hidden Layer ===
-    k = size(Theta1, 1); % qty units in Hidden Layer
-    a2 = zeros(k, 1);
-    
-    % Loop through Hidden Layer's units
-    for j = 1:k
-        z2_j = Theta1(j,:) * a1;
-        a2(j) = sigmoid(z2_j);
-    end
-    a2 = [1; a2]; % add a2_0 = 1
 
 
-    % === Activations from Output Layer ===
-    k = size(Theta2, 1); % qty units in Output Layer
-    a3 = zeros(k, 1);
+% Vectorized way
 
-    % Loop through Output Layer's units
-    for j = 1:k
-        z3_j = Theta2(j,:) * a2;
-        a3(j) = sigmoid(z3_j);
-    end
+% === Activations from Input Layer (features) ===
+a1 = [ones(m, 1) X]; % add a1_0 = 1
 
 
-    % === softmax from our output (the index is our classification class) ===
-    [_ p(i)] = max(a3', [], 2);
-end
+% === Activations from Hidden Layer ===
+z2 = a1 * Theta1';
+a2 = sigmoid(z2);
+a2 = [ones(m, 1) a2]; % add a2_0 = 1
 
 
+% === Activations from Output Layer ===
+z3 = a2 * Theta2';
+a3 = sigmoid(z3);
 
-% Add 1's at input layer
-% X = [ones(m, 1) X];
+
+% === softmax from our output (the index is our classification class) ===
+[_ p] = max(a3, [], 2);
 
 
 % =========================================================================
