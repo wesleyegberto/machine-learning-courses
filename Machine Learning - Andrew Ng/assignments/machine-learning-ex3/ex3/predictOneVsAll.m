@@ -30,11 +30,16 @@ X = [ones(m, 1) X];
 %       for each row.
 %       
 
+% Loop way
+% px = zeros(size(X, 1), num_labels);
+% for k = 1:num_labels
+%     px(:,k) = sigmoid(X * all_theta(k,:)');
+% end
+% [_ p(:)] = max(px, [], 2);
 
 
-
-
-
+% Vectorized way
+[_ p(:)] = max(X * all_theta', [], 2);
 
 % =========================================================================
 
