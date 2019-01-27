@@ -3,17 +3,16 @@
 
 # # ML Regularized Logistic Regression - Using One-vs-All
 # 
-# We will use a one-vs-all logistic regression to recognize hand-written digits.
+# We will use an One-vs-all logistic regression to recognize hand-written digits.
 # 
 # The data set contains the images pixels row-wise (20x20) plus its label.
-# The digits are labeled from 1 through 10 where 10 represent 0.
+# The digits are labeled from 0 through 9.
 
-# In[30]:
+# In[1]:
 
 
 import pandas as pd
 import numpy as np
-# import pandas_profiling
 import seaborn as sns
 import matplotlib.pyplot as plt
 import random
@@ -34,7 +33,7 @@ print(data.head())
 
 
 x = np.array(data[[str(i) for i in range(1, 401)]]) # training set
-y = np.array(data['401']) # labels (1 through 10, where 10 is 0)
+y = np.array(data['401']) # labels (0-9)
 [m, n] = np.shape(x)
 
 
@@ -43,7 +42,7 @@ y = np.array(data['401']) # labels (1 through 10, where 10 is 0)
 
 digitMatrix = np.column_stack([np.reshape(x[0], [20, 20]), np.zeros([20, 1]),                                np.reshape(x[2500], [20, 20]), np.zeros([20, 1]),                                np.reshape(x[3500], [20, 20]), np.zeros([20, 1]),                                np.reshape(x[4500], [20, 20]), np.zeros([20, 1])])
 plt.imshow(digitMatrix, cmap='Greys', interpolation='nearest')
-plt.title("Digits: %s, %s, %s, %s" % (y[0], y[2500], y[3500], y[4500]))
+plt.title("Digits examples: %s, %s, %s, %s" % (y[0], y[2500], y[3500], y[4500]))
 # plt.show()
 
 
@@ -213,7 +212,7 @@ def train_one_vs_all(x, y, num_labels, alpha, lambd, num_iters):
     for k in range(num_labels):
         theta = np.zeros([n + 1])
 
-        # (y == k) to pass only the class related to current k (we are training to recognize this digit)
+        # pass only the class related to current k (we are training to recognize this digit)
         k_y = np.zeros([m])
         k_y[y == k] = 1
         theta, J_history[k] = regularizedGradientDescent(X, k_y, theta, alpha, lambd, num_iters)
@@ -235,6 +234,8 @@ gc_num_iters = 50
 # alpha = 1.3 # starting to cause overshoot in classifer for digit 8 - accuracy is 88.98%
 # alpha = 3 # will cause some overshoot in many classes - accuracy is 88.26%
 alpha = 2 # will cause less overshoot - accuracy is 89.62%
+
+# Note: on Octave, using fmincg instead of Gradient Descent it had accurary of 95%
 
 print('Training One-vs-All Logistic Regression...')
 all_theta, J_history = train_one_vs_all(x, y, num_digits, alpha, lambd, gc_num_iters)
@@ -272,7 +273,7 @@ def predict_one_vs_all(all_theta, x):
     return np.argmax(pk, axis=1)
 
 
-# In[16]:
+# In[15]:
 
 
 pred = predict_one_vs_all(all_theta, x);
@@ -280,7 +281,7 @@ print('Predictions:', pred[0], pred[2500], pred[3500], pred[4500])
 print('Training Set Accuracy:', np.mean(pred == y) * 100);
 
 
-# In[22]:
+# In[16]:
 
 
 def predict_and_display(x, y, all_theta, index):
@@ -292,7 +293,7 @@ def predict_and_display(x, y, all_theta, index):
     plt.title("Digit %s, Predicted %s" % (yp, pred[0]))
 
 
-# In[55]:
+# In[17]:
 
 
 predict_and_display(x, y, all_theta, random.randint(0, m))
