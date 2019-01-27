@@ -84,5 +84,40 @@ pause;
 
 pred = predictOneVsAll(all_theta, X);
 
+% Expect ~= 95%
 fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == y)) * 100);
+
+
+
+
+%% ============== Custom Part 4: Using Gradient Descent ==============
+% Custom just to compare GD with fmincg.
+% Using python, I got accuracy of 89.62%, let's see how much is gonna be here
+
+num_iters = 50;
+lambda = 1;
+
+% alpha = 1; % won't cause overshoot (and input 2500 will predict as 3) - accuracy is 88.466%
+% alpha = 1.1; % won't cause overshoot (and input 2500 will predict as 3) - accuracy is 88.539%
+% alpha = 1.3; % starting to cause overshoot in classifer for digit 8 - accuracy is 88.98%
+% alpha = 3; % will cause some overshoot in many classes - accuracy is 88.26%
+alpha = 2; % will cause less overshoot - accuracy is 89.62%
+
+
+fprintf('\nTraining One-vs-All Logistic Regression using Gradient Descent...\n')
+
+figure;
+hold on;
+
+xlabel('Number of iterations');
+ylabel('Cost J');
+
+[all_theta, all_J_history] = oneVsAll_GD(X, y, num_labels, alpha, lambda, num_iters);
+
+hold off;
+
+pred = predictOneVsAll(all_theta, X);
+
+% Got 89.60%
+fprintf('\nTraining Set Accuracy using Gradient Descent: %f\n', mean(double(pred == y)) * 100);
 

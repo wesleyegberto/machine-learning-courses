@@ -53,6 +53,7 @@ grad = zeros(size(theta));
 h = sigmoid(X * theta); % x_0 = 1 and X is row-wise
 n = size(grad);
 J = (1 / m) * ( (-y)' * log(h) - (1 - y)' * log(1 - h) ) + (lambda / (2 * m) * (theta(2:n)' * theta(2:n)));
+
 grad_0 = (1 / m) * X(:,1)' * (sigmoid(X * theta) - y);
 grad = ((1 / m) * X' * (sigmoid(X * theta) - y)) + (lambda / m * theta);
 grad(1) = grad_0;
