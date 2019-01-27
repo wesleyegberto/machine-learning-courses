@@ -43,13 +43,13 @@ y = np.array(data['accepted']) # labels
 # In[4]:
 
 
-print('Plotting data with + indicating (y = 1) examples and o indicating (y = 0) examples.')
-sns.scatterplot('test1', 'test2', hue='accepted', data=data)
+print('Plotting data with "x" indicating (y = 1) examples and "o" indicating (y = 0) examples.')
+sns.scatterplot('test1', 'test2', hue='accepted', style='accepted', data=data)
 
 
 # ## =========== Part 2: Mapping Features ============
 # 
-# One way to fit the data better is to create more features from each data point. We will map the features into all polynomial terms of x1 and x2 up to the sixth power.
+# One way to fit the data better is to create more features from each data point. We will map the features into all polynomial terms of $x_1$ and $x_2$ up to the sixth power.
 # 
 # As a result of this mapping, our vector of two features (the scores on two QA tests) has been transformed into a 28-dimensional vector. A logistic regression classifier trained on this higher-dimension feature vector will have a more complex decision boundary and will appear nonlinear when drawn in our 2-dimensional plot.
 # 
@@ -153,14 +153,16 @@ print(sigmoid(np.array([[4, 5, 6], [-1, 0, 1]])))
 # Function that defines our logistic model.
 # 
 # Definition:
+# 
 # $h_\theta(x) = g(\theta_0 + \theta_1 * x_1 + \theta_2 * x_2)$
 # 
 # Vectorial form:
-# $h_\theta(X) = g(\theta^{T} * X)$
+# 
+# $h_\theta(x) = g(\theta^{T} * x)$
 # 
 # where:
 # 
-# $g$ is the sigmoid function; $X = [x_0, x_1, x_2]$; $x_0 = 1$ and $\theta = [\theta_0, \theta_1, \theta_2]$
+# $g$ is the sigmoid function; $x = [x_0, x_1, x_2]$; $x_0 = 1$ and $\theta = [\theta_0, \theta_1, \theta_2]$
 
 # In[9]:
 
@@ -171,7 +173,7 @@ def hypothesis(X, theta):
 
 
 # ### Regularized Logistic Cost Function
-# Computes the logistic cost of using theta as the parameter for logistic regression to fit the data points in X and y, considering the cost of a particular choice of theta.
+# Computes the logistic cost of our model using theta as the parameter for logistic regression to fit the data points in X and y, considering the cost of a particular choice of theta.
 # 
 # For parameter $\theta_0$ we aren't computing its cost because it is the bias - doesn't have a feature.
 # 
@@ -264,20 +266,21 @@ print('Expected cost (approx): 3.16');
 # ### Regularized Gradient Descent
 # Performs gradient descent to learn $\theta$ parameters.
 # 
-# It return the an array with $\theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
+# It return an array with $\theta$ containing the values found by taking num_iters gradient steps with learning rate $\alpha$.
 # 
-# Also it return a array with the history of $J(\theta)$ to be plotted.
+# Also it return an array with the history of $J(\theta)$ to be plotted.
 # 
 # Step to update each parameter:
+# 
 # $\theta_j := \theta_j - \alpha * \frac{\partial J}{\partial \theta_j} $
-# 
-# Metrix form:
-# 
-# $ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) + \frac{\lambda}{m} \theta_j $
 # 
 # Where:
 # 
 # $\frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}] + \frac{\lambda}{m} \theta_j$
+# 
+# Vectorial form:
+# 
+# $ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) + \frac{\lambda}{m} \theta_j $
 
 # In[13]:
 

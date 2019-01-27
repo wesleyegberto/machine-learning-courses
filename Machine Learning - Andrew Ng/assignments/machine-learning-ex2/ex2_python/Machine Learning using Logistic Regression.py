@@ -41,52 +41,19 @@ y = np.array(data['admitted']) # labels
 # In[4]:
 
 
-print('Plotting data with + indicating (y = 1) examples and o indicating (y = 0) examples.')
-sns.scatterplot('score1', 'score2', hue='admitted', data=data)
+print('Plotting data with "x" indicating (y = 1) examples and "o" indicating (y = 0) examples.')
+sns.scatterplot('score1', 'score2', hue='admitted', style='admitted', data=data)
 
 
-# ## ============ Part 2: Compute Cost and Gradient ============
-
-# ### Activation Function
-# We will use the sigmoid function as our activation function.
+# ## =========== Part 2: Mapping Features ============
 # 
-# $g(z) = \frac{1}{1 + e^{-z}}$
+# One way to fit the data better is to create more features from each data point. We will map the features into all polynomial terms of $x_1$ and $x_2$ up to the sixth power.
 # 
-# When:
+# As a result of this mapping, our vector of two features (the scores on two QA tests) has been transformed into a 28-dimensional vector. A logistic regression classifier trained on this higher-dimension feature vector will have a more complex decision boundary and will appear nonlinear when drawn in our 2-dimensional plot.
 # 
-# $z = 0$ then $g = 0.5$
-# 
-# $z \rightarrow +\infty$ then $g \rightarrow +1$
-# 
-# $z \rightarrow -\infty$ then $g \rightarrow 0$
-# 
+# While the feature mapping allows us to build a more expressive classifier, it also more susceptible to overfitting. To void that we will implement regularized logistic regression to fit the data and combat the overfitting problem.
 
 # In[5]:
-
-
-def sigmoid(z):
-    # return np.divide(np.float128(1.0), (np.float128(1.0) + np.exp(-z)), dtype=np.float128)
-    return 1 / (1 + np.exp(-z))
-
-
-# In[6]:
-
-
-print(sigmoid(-5)) # ~= 0.0066929
-print(sigmoid(0)) # ~= 0.5
-print(sigmoid(5)) # ~= 0.99331
-print(sigmoid(np.array([4, 5, 6]))) # ~= [0.98201   0.99331   0.99753]
-print(sigmoid(np.array([-1, 0, 1]))) # ~= [0.26894 0.50000 0.73106]
-print(sigmoid(np.array([[4, 5, 6], [-1, 0, 1]])))
-
-
-# Add a column of ones to X to facilitate the manipulation.
-# 
-# Each row is a input with the following format:
-# 
-# $X[0] = [ x_0, x_1, x_2 ]$ where $x_0 = 1$
-
-# In[7]:
 
 
 """
@@ -114,7 +81,7 @@ def featureNormalize(X):
     return X_norm, mu, sigma
 
 
-# In[8]:
+# In[6]:
 
 
 # Tessting Feature Normalization
@@ -131,7 +98,7 @@ print("mu", mu_) # [2104.    3.]
 print("sigma", sigma_) # [635.96226303   0.70710678]
 
 
-# In[9]:
+# In[7]:
 
 
 # Scale features and set them to zero mean
@@ -143,7 +110,7 @@ print('Normalized data')
 X[:5]
 
 
-# In[10]:
+# In[8]:
 
 
 # Add a column of ones to X to facilitate the manipulation
@@ -151,13 +118,56 @@ X = np.column_stack((np.ones(m), X))
 X[:5]
 
 
+# ## ============ Part 3: Compute Cost and Gradient ============
+
+# ### Activation Function
+# We will use the sigmoid function as our activation function.
+# 
+# $g(z) = \frac{1}{1 + e^{-z}}$
+# 
+# When:
+# 
+# $z = 0$ then $g = 0.5$
+# 
+# $z \rightarrow +\infty$ then $g \rightarrow +1$
+# 
+# $z \rightarrow -\infty$ then $g \rightarrow 0$
+# 
+
+# In[9]:
+
+
+def sigmoid(z):
+    # return np.divide(np.float128(1.0), (np.float128(1.0) + np.exp(-z)), dtype=np.float128)
+    return 1 / (1 + np.exp(-z))
+
+
+# In[10]:
+
+
+print(sigmoid(-5)) # ~= 0.0066929
+print(sigmoid(0)) # ~= 0.5
+print(sigmoid(5)) # ~= 0.99331
+print(sigmoid(np.array([4, 5, 6]))) # ~= [0.98201   0.99331   0.99753]
+print(sigmoid(np.array([-1, 0, 1]))) # ~= [0.26894 0.50000 0.73106]
+print(sigmoid(np.array([[4, 5, 6], [-1, 0, 1]])))
+
+
+# Add a column of ones to X to facilitate the manipulation.
+# 
+# Each row is a input with the following format:
+# 
+# $X[0] = [ x_0, x_1, x_2 ]$ where $x_0 = 1$
+
 # ### Hypothesis Function
 # Function that defines our logistic model.
 # 
 # Definition:
+# 
 # $h_\theta(x) = g(\theta_0 + \theta_1 * x_1 + \theta_2 * x_2)$
 # 
 # Vectorial form:
+# 
 # $h_\theta(x) = g(\theta^{T} * x)$
 # 
 # where:
@@ -245,20 +255,21 @@ print('Expected cost (approx): 0.693')
 # ### Running Gradient Descent
 # Performs gradient descent to learn $\theta$ parameters.
 # 
-# It return the an array with $\theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
+# It return an array with $\theta$ containing the values found by taking num_iters gradient steps with learning rate alpha.
 # 
-# Also it return a array with the history of $J(\theta)$ to be plotted.
+# Also it return an array with the history of $J(\theta)$ to be plotted.
 # 
 # Step to update each parameter:
+# 
 # $\theta_j := \theta_j - \alpha * \frac{\partial J}{\partial \theta_j} $
-# 
-# Metrix form:
-# 
-# $ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
 # 
 # Where:
 # 
 # $\frac{\partial J}{\partial \theta_j} = \frac{1}{m} \sum_{i=1}^{m} [( h_\theta(x^{(i)}) - y^{(i)}) * x^{(i)}]$
+# 
+# Metrix form:
+# 
+# $ \frac{\partial J}{\partial \theta_j} = \frac{1}{m} = X^{T} ( h_\theta(x^{(i)}) - y^{(i)}) $
 
 # In[15]:
 
@@ -337,7 +348,7 @@ print('Train Accuracy: ', ((p >= 0.5) == y).sum().mean())
 print('Expected accuracy (approx): 89.0\n')
 
 
-# ## ==================== Part 1: Plotting Boundary Decision ====================
+# ## ==================== Part 3: Plotting Boundary Decision ====================
 
 # In[21]:
 
