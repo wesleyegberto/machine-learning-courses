@@ -64,18 +64,123 @@ Theta2_grad = zeros(size(Theta2));
 
 
 
+% ====================== Part 1
+
+% Feed Forward - Loop way
+% for i = 1:m
+%     % === Activations from Input Layer (features) ===
+%     X = [1; X(i,:)']; % add a1_0 = 1
+%     
+% 
+%     % === Activations from Hidden Layer ===
+%     k = size(Theta1, 1); % qty units in Hidden Layer
+%     a2 = zeros(k, 1);
+%     
+%     % Loop through Hidden Layer's units
+%     for j = 1:k
+%         z2_j = Theta1(j,:) * X;
+%         a2(j) = sigmoid(z2_j);
+%     end
+%     a2 = [1; a2]; % add a2_0 = 1
+% 
+% 
+%     % === Activations from Output Layer ===
+%     k = size(Theta2, 1); % qty units in Output Layer
+%     a3 = zeros(k, 1);
+% 
+%     % Loop through Output Layer's units
+%     for j = 1:k
+%         z3_j = Theta2(j,:) * a2;
+%         a3(j) = sigmoid(z3_j);
+%     end
+% 
+% 
+%     % === softmax from our output (the index is our classification class) ===
+%     [_ p(i)] = max(a3', [], 2);
+% end
+
+
+% Feed Forward - Vectorized way
+
+% === Activations from Input Layer (features) ===
+X = [ones(m, 1) X]; % add a1_0 = 1
+
+% === Activations from Hidden Layer ===
+z2 = X * Theta1';
+a2 = sigmoid(z2);
+a2 = [ones(m, 1) a2]; % add a2_0 = 1
+
+% === Activations from Output Layer ===
+z2 = a2 * Theta2';
+a3 = sigmoid(z2);
 
 
 
+h = a3;
+totalError = 0;
+regParam = 0;
+
+% % Compute the cost - Loop way (too slow)
+% for i = 1:m
+%     for k = 1:num_labels
+%         % y(i) == k will only be 1 when k-th unit is y_i
+%         totalError = totalError + ((y(i) == k) * log(h(i,k)) + (1 - (y(i) == k)) * log(1 - h(i,k)));
+%     end
+% end
+% % regularization
+% [J K] = size(Theta1);
+% for j = 1:J
+%     for k = 1:K
+%         regParam = regParam + Theta1(j, k) ** 2;
+%     end
+% end
+% 
+% [J K] = size(Theta2);
+% for j = 1:J
+%     for k = 1:K
+%         regParam = regParam + Theta2(j, k) ** 2;
+%     end
+% end
+
+
+%% Compute the cost - Vector way
+% for i = 1:m
+%     % generate the y_i values at output layer - only the k-th unit respect to y_i will be 1
+%     y_k = y(i) == linspace(1, num_labels, num_labels);
+% 
+%     totalError = totalError + sum(y_k .* log(h(i,:)) + (1 - y_k) .* log(1 - h(i,:)));
+% end
+% % regularization
+% J = size(Theta1, 1);
+% for j = 1:J
+%     regParam = regParam + (Theta1(j, :) * Theta1(j, :)');
+% end
+% 
+% J = size(Theta2, 1);
+% for j = 1:J
+%     regParam = regParam + (Theta2(j, :) * Theta2(j, :)');
+% end
+
+
+% Compute the cost - Matrix way
+% generate the matrix y with the output from output layer - only the k-th unit respect to y_i will be 1
+y_k = y == linspace(1, num_labels, num_labels);
+
+outputs_error = y_k .* log(h) + (1 - y_k) .* log(1 - h); % result in matrix (m)x(num_labels)
+totalError = sum(sum(outputs_error));
+% % regularization
+regParam = sum(sum(Theta1 .* Theta1)) + sum(sum(Theta2 .* Theta2));
 
 
 
+J = ((-1 / m) * totalError) + (lambda / (2 * m) * regParam);
+
+
+% ====================== Part 2
 
 
 
-
-
-
+% ====================== Part 3
 
 
 
