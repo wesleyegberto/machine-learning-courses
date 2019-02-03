@@ -8,8 +8,8 @@ function [J grad] = nnCostFunction(nn_params, ...
 %   [J grad] = NNCOSTFUNCTON(nn_params, hidden_layer_size, num_labels, ...
 %   X, y, lambda) computes the cost and gradient of the neural network. The
 %   parameters for the neural network are "unrolled" into the vector
-%   nn_params and need to be converted back into the weight matrices. 
-% 
+%   nn_params and need to be converted back into the weight matrices.
+%
 %   The returned parameter grad should be a "unrolled" vector of the
 %   partial derivatives of the neural network.
 %
@@ -24,8 +24,8 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 % Setup some useful variables
 m = size(X, 1);
-         
-% You need to return the following variables correctly 
+
+% You need to return the following variables correctly
 J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
@@ -46,12 +46,12 @@ Theta2_grad = zeros(size(Theta2));
 %         that your implementation is correct by running checkNNGradients
 %
 %         Note: The vector y passed into the function is a vector of labels
-%               containing values from 1..K. You need to map this vector into a 
+%               containing values from 1..K. You need to map this vector into a
 %               binary vector of 1's and 0's to be used with the neural network
 %               cost function.
 %
 %         Hint: We recommend implementing backpropagation using a for-loop
-%               over the training examples if you are implementing it for the 
+%               over the training examples if you are implementing it for the
 %               first time.
 %
 % Part 3: Implement regularization with the cost function and gradients.
@@ -64,49 +64,46 @@ Theta2_grad = zeros(size(Theta2));
 
 
 
-% ====================== Part 1
+% ====================== Part 1 - Feed Forward
 
 % Feed Forward - Loop way
 % for i = 1:m
 %     % === Activations from Input Layer (features) ===
 %     X = [1; X(i,:)']; % add a1_0 = 1
-%     
-% 
+%
+%
 %     % === Activations from Hidden Layer ===
 %     k = size(Theta1, 1); % qty units in Hidden Layer
 %     a2 = zeros(k, 1);
-%     
+%
 %     % Loop through Hidden Layer's units
 %     for j = 1:k
 %         z2_j = Theta1(j,:) * X;
 %         a2(j) = sigmoid(z2_j);
 %     end
 %     a2 = [1; a2]; % add a2_0 = 1
-% 
-% 
+%
+%
 %     % === Activations from Output Layer ===
 %     k = size(Theta2, 1); % qty units in Output Layer
 %     a3 = zeros(k, 1);
-% 
+%
 %     % Loop through Output Layer's units
 %     for j = 1:k
 %         z3_j = Theta2(j,:) * a2;
 %         a3(j) = sigmoid(z3_j);
 %     end
-% 
-% 
-%     % === softmax from our output (the index is our classification class) ===
-%     [_ p(i)] = max(a3', [], 2);
+%
 % end
 
 
 % Feed Forward - Vectorized way
 
 % === Activations from Input Layer (features) ===
-X = [ones(m, 1) X]; % add a1_0 = 1
+a1 = [ones(m, 1) X]; % add a1_0 = 1
 
 % === Activations from Hidden Layer ===
-z2 = X * Theta1';
+z2 = a1 * Theta1';
 a2 = sigmoid(z2);
 a2 = [ones(m, 1) a2]; % add a2_0 = 1
 
@@ -120,6 +117,7 @@ h = a3;
 totalError = 0;
 regParam = 0;
 
+
 % % Compute the cost - Loop way (too slow)
 % for i = 1:m
 %     for k = 1:num_labels
@@ -130,35 +128,34 @@ regParam = 0;
 % % regularization
 % [J K] = size(Theta1);
 % for j = 1:J
-%     for k = 1:K
+%     for k = 2:K
 %         regParam = regParam + Theta1(j, k) ** 2;
 %     end
 % end
-% 
 % [J K] = size(Theta2);
 % for j = 1:J
-%     for k = 1:K
+%     for k = 2:K
 %         regParam = regParam + Theta2(j, k) ** 2;
 %     end
 % end
 
 
-%% Compute the cost - Vector way
+% % Compute the cost - Vector way
 % for i = 1:m
 %     % generate the y_i values at output layer - only the k-th unit respect to y_i will be 1
 %     y_k = y(i) == linspace(1, num_labels, num_labels);
-% 
+%
 %     totalError = totalError + sum(y_k .* log(h(i,:)) + (1 - y_k) .* log(1 - h(i,:)));
 % end
 % % regularization
 % J = size(Theta1, 1);
 % for j = 1:J
-%     regParam = regParam + (Theta1(j, :) * Theta1(j, :)');
+%     regParam = regParam + (Theta1(j, 2:end) * Theta1(j, 2:end)');
 % end
-% 
+%
 % J = size(Theta2, 1);
 % for j = 1:J
-%     regParam = regParam + (Theta2(j, :) * Theta2(j, :)');
+%     regParam = regParam + (Theta2(j, 2:end) * Theta2(j, 2:end)');
 % end
 
 
@@ -168,20 +165,58 @@ y_k = y == linspace(1, num_labels, num_labels);
 
 outputs_error = y_k .* log(h) + (1 - y_k) .* log(1 - h); % result in matrix (m)x(num_labels)
 totalError = sum(sum(outputs_error));
-% % regularization
-regParam = sum(sum(Theta1 .* Theta1)) + sum(sum(Theta2 .* Theta2));
-
+% regularization
+regParam = sum(sum(Theta1(:,2:end) .* Theta1(:,2:end))) + sum(sum(Theta2(:,2:end) .* Theta2(:,2:end)));
 
 
 J = ((-1 / m) * totalError) + (lambda / (2 * m) * regParam);
 
 
-% ====================== Part 2
+
+% ====================== Part 2 - Backpropagation
+
+% accumulators
+Delta1 = zeros(size(Theta1));
+Delta2 = zeros(size(Theta2));
+
+for t = 1:m
+  % === Feedforward
+  % Activations from Input Layer (features) ===
+  a1 = [1; X(t,:)']; % add a1_0 = 1
+
+  % Activations from Hidden Layer ===
+  z2 = Theta1 * a1;
+  a2 = sigmoid(z2);
+  a2 = [1; a2]; % add a2_0 = 1
+
+  % Activations from Output Layer ===
+  z3 = Theta2 * a2;
+  a3 = sigmoid(z3);
+
+
+  % === Backpropagation
+  % Compute error term at output layer
+  y_ks = (y(t) == linspace(1, num_labels, num_labels))';
+  delta3 = (a3 - y_ks);
+
+  % Compute error term at hidden layer (ignoring bias unit)
+  delta2 = (Theta2(:,2:end))' * delta3 .* sigmoidGradient(z2);
+
+  % Accumulate the gradients
+  Delta2 = Delta2 + delta3 * a2';
+  Delta1 = Delta1 + delta2 * a1';
+
+end
+
+Theta1_grad = (1 / m) * Delta1;
+Theta2_grad = (1 / m) * Delta2;
 
 
 
-% ====================== Part 3
+% ====================== Part 3 - Regularization
 
+Theta1_grad(:,2:end) = Theta1_grad(:,2:end) + (lambda / m) * Theta1(:,2:end);
+Theta2_grad(:,2:end) = Theta2_grad(:,2:end) + (lambda / m) * Theta2(:,2:end);
 
 
 
